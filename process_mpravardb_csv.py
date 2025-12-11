@@ -20,8 +20,6 @@ DOWNSTREAM_BP = 300
 
 # Extract the exact 200bp sequences for each row, keeping SNP in the center, extra 200 bp on each side
 def extract_sequence(row, hg19_index, hg38_index):
-    start = max(0, row['pos'] - UPSTREAM_BP)
-    end = min(len(seq), row['pos'] + DOWNSTREAM_BP)
     chromosome = row['chr']
     ref_nucleotide = row['ref']
     alt_nucleotide = row['alt']
@@ -42,6 +40,9 @@ def extract_sequence(row, hg19_index, hg38_index):
         ref_seq = hg38_index[chromosome][start:end]
     else:
         raise ValueError(f"Unsupported genome: {row['genome']}")
+
+    start = row['pos'] - UPSTREAM_BP - 1  # Convert to 0-based index
+    end = row['pos'] + DOWNSTREAM_BP      # end is exclusive in Python slicing
 
     # verify that the ref nucleotide matches the sequence
     if ref_seq[300] != ref_nucleotide:
