@@ -33,16 +33,18 @@ def extract_sequence(row, hg19_index, hg38_index):
     if chromosome not in hg38_index and row['genome'] == 'hg38':
         raise ValueError(f"Chromosome {chromosome} not found in HG38 index")
     
-    # get the reference sequence
+    # get the entire reference sequence
     if row['genome'] == 'hg19':
-        ref_seq = hg19_index[chromosome][start:end]
+        ref_seq = hg19_index[chromosome]
     elif row['genome'] == 'hg38':
-        ref_seq = hg38_index[chromosome][start:end]
+        ref_seq = hg38_index[chromosome]
     else:
         raise ValueError(f"Unsupported genome: {row['genome']}")
 
+    # extract the sequence around the SNP
     start = row['pos'] - UPSTREAM_BP - 1  # Convert to 0-based index
     end = row['pos'] + DOWNSTREAM_BP      # end is exclusive in Python slicing
+    ref_seq = str(ref_seq.seq[start:end])
 
     # verify that the ref nucleotide matches the sequence
     if ref_seq[300] != ref_nucleotide:
