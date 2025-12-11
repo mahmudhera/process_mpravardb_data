@@ -7,6 +7,7 @@ All columns are kept in the output, but
 - description is dropped
 - mpra_study field is made smaller (only the first author's name)
 - the ref and alt sequences are added to the output, with the snp in the center and 300 bp on each side
+final sequence length is 601 bp
 """
 
 
@@ -41,17 +42,21 @@ def extract_sequence(row, hg19_index, hg38_index):
     else:
         raise ValueError(f"Unsupported genome: {row['genome']}")
 
+    # verify that the position is valid
+    if row['pos'] - UPSTREAM_BP - 1 < 0 or row['pos'] + DOWNSTREAM_BP > len(ref_seq):
+        raise ValueError(f"Position {row['pos']} with upstream {UPSTREAM_BP} and downstream {DOWNSTREAM_BP} exceeds chromosome bounds for chromosome {chromosome}")
+
+    # verify that ref nucleotide at that position is valid
+    if ref_seq.seq[row['pos']] != ref_nucleotide:
+        raise ValueError(f"Ref nucleotide {ref_nucleotide} does not match reference genome at position {row['pos']} on chromosome {chromosome}")
+
     # extract the sequence around the SNP
-    start = row['pos'] - UPSTREAM_BP - 1  # Convert to 0-based index
-    end = row['pos'] + DOWNSTREAM_BP      # end is exclusive in Python slicing
+    start = row['pos'] - UPSTREAM_BP
+    end = row['pos'] + DOWNSTREAM_BP + 1
     ref_seq = str(ref_seq.seq[start:end])
 
-    # verify that the ref nucleotide matches the sequence
-    if ref_seq[300] != ref_nucleotide:
-        raise ValueError(f"Ref nucleotide {ref_nucleotide} does not match sequence at position {row['pos']} on chromosome {chromosome}")
-    
     # create the alt sequence by replacing the ref nucleotide with the alt nucleotide
-    alt_seq = ref_seq[:300] + alt_nucleotide + ref_seq[301:]
+    alt_seq = ref_seq[:UPSTREAM_BP+1] + alt_nucleotide + ref_seq[UPSTREAM_BP+2:]
     return ref_seq, alt_seq
 
 def parse_args():
