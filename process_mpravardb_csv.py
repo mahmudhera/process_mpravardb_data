@@ -92,6 +92,12 @@ def process_csv(input_csv, output_csv, hg19_path, hg38_path):
     # Load the HG19 and HG38 FASTA files 
     hg19_index = SeqIO.to_dict(SeqIO.parse(hg19_path, "fasta"))
     hg38_index = SeqIO.to_dict(SeqIO.parse(hg38_path, "fasta"))
+    # make everything uppercase in the index
+    for chrom in hg19_index:
+        hg19_index[chrom].seq = hg19_index[chrom].seq.upper()
+    for chrom in hg38_index:
+        hg38_index[chrom].seq = hg38_index[chrom].seq.upper()
+    # Extract ref and alt sequences for each row
     df['ref_seq'], df['alt_seq'] = zip(*df.apply(lambda row: extract_sequence(row, hg19_index, hg38_index), axis=1))
     
     # Save the modified DataFrame to a new CSV file
