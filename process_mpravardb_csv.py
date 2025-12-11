@@ -47,7 +47,12 @@ def extract_sequence(row, hg19_index, hg38_index):
         raise ValueError(f"Position {row['pos']} with upstream {UPSTREAM_BP} and downstream {DOWNSTREAM_BP} exceeds chromosome bounds for chromosome {chromosome}")
 
     # verify that ref nucleotide at that position is valid
+    found_ref_nucleotide = ref_seq.seq[row['pos']]
+    found_ref_nucleotide_before = ref_seq.seq[row['pos'] - 1]
+    found_ref_nucleotide_after = ref_seq.seq[row['pos'] + 1]
     if ref_seq.seq[row['pos']] != ref_nucleotide:
+        print(f"Found ref nucleotide before: {found_ref_nucleotide_before}, at pos: {found_ref_nucleotide}, after: {found_ref_nucleotide_after}")
+        print(f"Row info: chromosome: {chromosome}, pos: {row['pos']}, ref_nucleotide: {ref_nucleotide}, alt_nucleotide: {alt_nucleotide}, genome: {row['genome']}")
         raise ValueError(f"Ref nucleotide {ref_nucleotide} does not match reference genome at position {row['pos']} on chromosome {chromosome}")
 
     # extract the sequence around the SNP
