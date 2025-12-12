@@ -26,7 +26,7 @@ def extract_sequence(row, hg19_index, hg38_index):
     alt_nucleotide = row['alt']
     
     # Convert chromosome to the correct format
-    chromosome = 'chr' + str(int(chromosome))
+    chromosome = 'chr' + str(chromosome)
 
     # check if chromosome exists in the index
     if chromosome not in hg19_index and row['genome'] == 'hg19':
