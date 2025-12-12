@@ -80,11 +80,23 @@ def process_csv(input_csv, output_csv, hg19_path, hg38_path):
     # Drop the 'description' column
     df.drop(columns=['Description'], inplace=True)
 
+    # drop disease column if exists
+    if 'disease' in df.columns:
+        df.drop(columns=['disease'], inplace=True)
+
+    # make ref and alt uppercase
+    df['ref'] = df['ref'].str.upper()
+    df['alt'] = df['alt'].str.upper()
+
     # Filter out rows where logfc is not a valid number
     df = df[pd.to_numeric(df['log2FC'], errors='coerce').notnull()]
 
     # Filter out rows where ref or alt alleles are not single nucleotides
     df = df[(df['ref'].str.len() == 1) & (df['alt'].str.len() == 1)]
+
+    # filter out rows where ref or alt alleles are not A, T, C, G
+    valid_nucleotides = {'A', 'T', 'C', 'G'}
+    df = df[df['ref'].isin(valid_nucleotides) & df['alt'].isin(valid_nucleotides)]
     
     # Make the 'mpra_study' field smaller (only the first author's name)
     df['MPRA_study'] = df['MPRA_study'].str.split('(').str[-1].str.split(' ').str[0]
