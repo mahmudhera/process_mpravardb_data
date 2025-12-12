@@ -61,7 +61,7 @@ def extract_sequence(row, hg19_index, hg38_index):
     ref_seq = str(ref_seq.seq[start:end])
 
     # create the alt sequence by replacing the ref nucleotide with the alt nucleotide
-    alt_seq = ref_seq[:UPSTREAM_BP+1] + alt_nucleotide + ref_seq[UPSTREAM_BP+2:]
+    alt_seq = ref_seq[:UPSTREAM_BP] + alt_nucleotide + ref_seq[UPSTREAM_BP+2:]
     return ref_seq, alt_seq
 
 def parse_args():
